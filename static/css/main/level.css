@@ -1,0 +1,40 @@
+/* QLabel{
+  font-size: 64px;
+  color: #00FF00;
+} */
+
+QPushButton{
+  background: #2C2C2C;
+  color: #FFFFFF;
+  border: 2px solid #00FF00;
+  border-radius: 10px;
+  font-size: 24px;
+  font-family: monospace;
+}
+QPushButton:hover{
+  background: #00FF00;
+  color: black;
+}
+
+#heading {
+  font-size: 64px;
+  color: #00FF00;
+}
+
+#description {
+  font-size: 24px;
+  color: #00FF00;
+}
+
+/* QWidget {
+    background: #0D0D0D;
+}
+
+QMdiArea{
+    background:  #0D0D0D;
+    border: none
+}
+QMdiSubWindow {
+    background:  #0D0D0D;
+    border: none;
+} */
