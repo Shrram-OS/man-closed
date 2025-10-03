@@ -64,20 +64,33 @@ class LevelScreen(QWidget):
         description.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         central_layout.addWidget(description, stretch=3)
 
-        # central_layout.addWidget(description)
 
         # Задачи
-        # СДЕЛАТЬ ПОТОМ ЧЕРЕЗ СЛОВАРЬ
-        self.tasks_answers = []
+
+        self.answer_map = {}
+
         tasks_container = QVBoxLayout()
         tasks_container.setSpacing(10)
-        for task in self.config["tasks"]:
-            # task_id = task["id"]
+
+        self.tasks_id = {}   
+
+        self.done = set()
+
+        self.tasks = self.config["tasks"]
+        
+        for task in self.tasks:
             task_text = task["text"]
-            self.tasks_answers.append(task["answer"])
-            task = QPushButton(task_text)
-            task.setFixedHeight(100)
-            tasks_container.addWidget(task)
+
+            self.answer_map.update(task["a_id"])  
+
+
+            task_button = QPushButton(task_text)
+            task_button.setFixedHeight(100)
+
+            self.tasks_id[task["id"]] = task_button
+
+
+            tasks_container.addWidget(task_button)
         tasks_container.addStretch()
         
         central_layout.addLayout(tasks_container, stretch=1)
@@ -86,14 +99,12 @@ class LevelScreen(QWidget):
         self.layout.addLayout(central_layout)
         
 
-        # Кнопка запуска эмулятора
         if self.config["emulator"]:
             btn_emulator = QPushButton("Открыть эмулятор")
             btn_emulator.clicked.connect(self.show_emul)
             btn_emulator.setFixedHeight(50)
             self.layout.addWidget(btn_emulator, stretch=1)
 
-        # Кнопка перехода
         self.btn_next = QPushButton("Следующий уровень")
         self.btn_next.setFixedHeight(50)
         self.btn_next.clicked.connect(self.go_next)
@@ -103,7 +114,6 @@ class LevelScreen(QWidget):
 
         self.emul_widget = None  
 
-        self.all_tasks_done = False
 
     def single_shot(self):
         self.btn_next.setStyleSheet("QPushButton {color: white}; QPushButton:hover {color: white}")
@@ -111,27 +121,26 @@ class LevelScreen(QWidget):
 
 
     def go_next(self):
-        next_level = self.level_id + 1
-        self.main_window.show_screen(LevelScreen, next_level)
+        if self.all_tasks_done():
+            next_level = self.level_id + 1
+            self.main_window.show_screen(LevelScreen, next_level)
 
-        # if self.all_tasks_done:
-        #     next_level = self.level_id + 1
-        #     self.main_window.show_screen(LevelScreen, next_level)
-
-        #     self.all_tasks_done = False
-        # else:
-        #     self.btn_next.setText("Не все задачи выполнены")
-        #     self.btn_next.setStyleSheet("QPushButton {color: red}; QPushButton:hover {color:red}")
-        #     QTimer.singleShot(3000, self.single_shot)
+        else:
+            self.btn_next.setText("Не все задачи выполнены")
+            self.btn_next.setStyleSheet("QPushButton {color: red}; QPushButton:hover {color:red}")
+            QTimer.singleShot(3000, self.single_shot)
             
 
 
+    def all_tasks_done(self):
+
+        return len(self.done) == len(self.tasks)
 
     def show_emul(self):
         if self.emul_widget is None:
 
 
-            self.emul_widget = self.config["emulator"](self.tasks_answers)
+            self.emul_widget = self.config["emulator"](self.answer_map, self.update_task)
             self.emul_widget.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
 
             self.emul_widget.show()
@@ -139,6 +148,16 @@ class LevelScreen(QWidget):
         else:
             # если уже создан – просто показать
             self.emul_widget.show()
+
+    
+
+    def update_task(self, task_id):
+        task_button = self.tasks_id[task_id]    
+        task_button.setStyleSheet("QPushButton { background-color: #1A2E3B; border: 2px solid #00CCFF; color: #00CCFF}")
+
+        self.done.add(task_id)
+
+    
 
 
 

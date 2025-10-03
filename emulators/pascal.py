@@ -6,17 +6,15 @@ from emulators.hud import WinHud
 from PyQt5.QtCore import Qt
 
 class PascalineEmulator(WinHud):
-    # def __init__(self, sub):
-    def __init__(self, tasks_answers, ):
+    def __init__(self, answer_map, update_task):
         super().__init__()
-        self.tasks_answers = tasks_answers
+        self.answer_map = answer_map
+        self.update_task = update_task
 
-        self.setStyleSheet("static/css/emuls/pascal.css")  # очистить наследованные стили
+        self.setStyleSheet("static/css/emuls/pascal.css")  
 
 
         self.setWindowTitle("Pascalina")
-        # self.setGeometry(500, 300, 1000, 400)
-
         self.total = 0
 
 
@@ -45,11 +43,9 @@ class PascalineEmulator(WinHud):
 
         
 
-        # Шрифт для текста
         self.font = QFont()
         self.font.setPointSize(14)
 
-        # Тексты поверх картинки
         self.text_hs = QLabel(self.image_label)
         self.text_hs.setFont(self.font)
         self.text_hs.move(74, 20)
@@ -84,7 +80,6 @@ class PascalineEmulator(WinHud):
             QRect(825, 136, 166, 186),
         ]
 
-        # Обновляем HUD
         self.hud()
 
     def hud(self):
@@ -99,28 +94,17 @@ class PascalineEmulator(WinHud):
         self.total = 0
         self.hud()
 
-    # def on_image_click(self, event):
-    #     x = event.x()
-    #     y = event.y()
-
-    #     for i, rect in enumerate(self.button_rectangles[::-1]):
-    #         if rect.contains(x, y):
-    #             self.total += 1 * 10**i
-    #             print(self.total)
-
-    #     self.hud()
 
     def on_image_click(self, event):
         if event.button() == Qt.LeftButton:
-            # Проверка: не попали ли мы в "рект-кнопку"
             for i, rect in enumerate(self.button_rectangles[::-1]):
                 if rect.contains(event.x(), event.y()):
                     self.total += 1 * 10**i
                     self.hud()
-                    # print(self.total)
-                    return  # выходим — не начинаем перетаскивать окно
+                    if self.total in self.answer_map:
+                        self.update_task(self.answer_map[self.total])
+                    return  
 
-            # если кликнули не по кнопке — начинаем перетаскивать окно
             self.oldPos = event.globalPos()
 
 
