@@ -1,3 +1,4 @@
+import re
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QPushButton, QLabel, QVBoxLayout, QHBoxLayout, QSizePolicy
 )
@@ -5,6 +6,9 @@ from PyQt5.QtCore import Qt, QPropertyAnimation, QRect
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
 from level import LevelScreen
+import os
+from datetime import datetime
+import json
 
 
 class MainMenu(QWidget):
@@ -28,30 +32,32 @@ class MainMenu(QWidget):
         main_layout.setSpacing(30)  # расстояние между элементами
 
 
-        self.text = QLabel("...")
+        self.text = QLabel("Історія розвитку комп’ютерної архітектури")
         self.text.setAlignment(Qt.AlignHCenter)
         self.text.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         main_layout.addWidget(self.text)
 
 
-        self.continue_button = QPushButton("Continue")
+        self.continue_button = QPushButton("Продовжити")
         self.continue_button.setFixedSize(360, 80)
         self.continue_button.clicked.connect(self.on_continue)
         main_layout.addWidget(self.continue_button)
 
-        self.new_game_button = QPushButton("New Game")
+
+        self.new_game_button = QPushButton("Почати нову гру")
         self.new_game_button.setFixedSize(360, 80)
+        self.new_game_button.clicked.connect(self.new_game)
         main_layout.addWidget(self.new_game_button)
 
-        self.choose_epoch_button = QPushButton("Choose Epoch")
-        self.choose_epoch_button.setFixedSize(360, 80)
-        main_layout.addWidget(self.choose_epoch_button)
+        # self.choose_epoch_button = QPushButton("Choose Epoch")
+        # self.choose_epoch_button.setFixedSize(360, 80)
+        # main_layout.addWidget(self.choose_epoch_button)
 
-        self.about_project_button = QPushButton("About Project")
+        self.about_project_button = QPushButton("Про проект")
         self.about_project_button.setFixedSize(360, 80)
         main_layout.addWidget(self.about_project_button)
 
-        self.exit_button = QPushButton("Exit")
+        self.exit_button = QPushButton("Вийти")
         self.exit_button.setFixedSize(360, 80)
         self.exit_button.clicked.connect(sys.exit)
         main_layout.addWidget(self.exit_button)
@@ -112,6 +118,26 @@ class MainMenu(QWidget):
         
 
     def on_continue(self):
+        files = sorted(os.listdir("saves"), key=lambda file: os.path.getmtime(os.path.join("saves", file)))
+        if files:
+            print(files[::-1][0])
+            with open(f"saves/{files[::-1][0]}", "r", encoding="utf-8") as file:
+                data = json.load(file)
+            
+            self.main_window.show_screen(LevelScreen, data["level"])
+        else:
+            self.create_first_save()
+
+    def new_game(self):
+        self.create_first_save()
+    
+    def create_first_save(self):
+        first_save = {"level": 0}
+        with open(f"saves/{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.json", "w", encoding="utf-8") as file:
+            json.dump(first_save, file)
+
+
+            
         self.main_window.show_screen(LevelScreen, 0)
 
         

@@ -4,6 +4,10 @@ from PyQt5.QtWidgets import (
 )
 import sys
 from main_menu import MainMenu
+import os
+
+os.makedirs("saves", exist_ok=True)
+
 
 class MainWindow(QMainWindow):
     def __init__(self):

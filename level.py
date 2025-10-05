@@ -1,3 +1,5 @@
+from datetime import datetime
+import json
 from PyQt5.QtCore import Qt, QPropertyAnimation, QRect
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import (
@@ -81,7 +83,7 @@ class LevelScreen(QWidget):
         for task in self.tasks:
             task_text = task["text"]
 
-            self.answer_map.update(task["a_id"])  
+            self.answer_map.update(task["answer_id"])  
 
 
             task_button = QPushButton(task_text)
@@ -100,12 +102,12 @@ class LevelScreen(QWidget):
         
 
         if self.config["emulator"]:
-            btn_emulator = QPushButton("Открыть эмулятор")
+            btn_emulator = QPushButton("Відкрити емулятор")
             btn_emulator.clicked.connect(self.show_emul)
             btn_emulator.setFixedHeight(50)
             self.layout.addWidget(btn_emulator, stretch=1)
 
-        self.btn_next = QPushButton("Следующий уровень")
+        self.btn_next = QPushButton("Наступний рівень")
         self.btn_next.setFixedHeight(50)
         self.btn_next.clicked.connect(self.go_next)
         self.layout.addWidget(self.btn_next, stretch=1)
@@ -117,16 +119,19 @@ class LevelScreen(QWidget):
 
     def single_shot(self):
         self.btn_next.setStyleSheet("QPushButton {color: white}; QPushButton:hover {color: white}")
-        self.btn_next.setText("Следующий уровень")
+        self.btn_next.setText("Наступний рівень")
 
 
     def go_next(self):
         if self.all_tasks_done():
             next_level = self.level_id + 1
+            with open(f"saves/{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.json", "w", encoding="utf-8") as file:
+                json.dump({"level": next_level}, file)
+            
             self.main_window.show_screen(LevelScreen, next_level)
 
         else:
-            self.btn_next.setText("Не все задачи выполнены")
+            self.btn_next.setText("Не всі завдання виконані")
             self.btn_next.setStyleSheet("QPushButton {color: red}; QPushButton:hover {color:red}")
             QTimer.singleShot(3000, self.single_shot)
             
